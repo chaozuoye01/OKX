@@ -1,0 +1,90 @@
+import pandas as pd
+import requests
+import time
+import random
+import hmac
+import hashlib
+import base64
+import datetime
+import json
+
+# OKX API配置
+API_KEY = 'API密钥'  # 替换为你的 API 密钥
+API_SECRET = 'API Secret'  # 替换为你的 API Secret
+API_PASSPHRASE = 'API密码'  # 替换为你的 API Passphrase
+BASE_URL = 'https://www.okx.com'
+
+# 配置区域
+CHAIN_NAME = "ETH-Base"  # 提现链名称，可以修改为其他链如 "ETH" 或 "ETH-Arbitrum One"
+MIN_SLEEP_TIME = 120  # 最小间隔时间（秒）
+MAX_SLEEP_TIME = 1800  # 最大间隔时间（秒）
+
+# 获取当前时间
+def get_current_time():
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+# 提现功能
+def withdraw_eth_to_arb(address, amount, chain=CHAIN_NAME):
+    endpoint = '/api/v5/asset/withdrawal'
+    url = BASE_URL + endpoint
+
+    timestamp = str(datetime.datetime.utcnow().isoformat("T", "milliseconds") + "Z")
+    body = {
+        "ccy": "ETH",
+        "amt": str(amount),
+        "dest": "4",  # 4 = On-Chain
+        "toAddr": address,
+        "chain": chain,
+        "fee": "0.002",  # 修改为实际的提现手续费
+    }
+
+    sign = generate_signature(timestamp, 'POST', endpoint, body)
+    headers = {
+        "OK-ACCESS-KEY": API_KEY,
+        "OK-ACCESS-SIGN": sign,
+        "OK-ACCESS-TIMESTAMP": timestamp,
+        "OK-ACCESS-PASSPHRASE": API_PASSPHRASE,
+        "Content-Type": "application/json",
+    }
+
+    response = requests.post(url, json=body, headers=headers)
+    return response.json()
+
+# 生成API签名
+def generate_signature(timestamp, method, request_path, body=None):
+    if body:
+        body = json.dumps(body)  # 使用json.dumps()将body转化为JSON字符串
+    else:
+        body = ""
+    message = f"{timestamp}{method}{request_path}{body}"
+    mac = hmac.new(bytes(API_SECRET, encoding='utf-8'),
+                   bytes(message, encoding='utf-8'), digestmod=hashlib.sha256)
+    d = mac.digest()
+    return base64.b64encode(d).decode()
+
+# 从Excel读取数据
+def read_excel(file_path):
+    df = pd.read_excel(file_path)
+    df.columns = df.columns.str.strip()  # 去除列名中的多余空格
+    print(f"{get_current_time()} - Excel 文件加载成功，列名如下：", df.columns)
+    return df
+
+# 主函数
+def main():
+    file_path = r"C:\Users\24894\Desktop\OKX\withdraw_list.xlsx"  # Excel文件路径
+    data = read_excel(file_path)
+
+    for index, row in data.iterrows():
+        address = row['Address']
+        amount = row['Amount']
+
+        print(f"{get_current_time()} - 准备提现 {amount} ETH 到地址 {address}...")
+        response = withdraw_eth_to_arb(address, amount)
+        print(f"{get_current_time()} - 结果: {response}")
+
+        sleep_time = random.randint(MIN_SLEEP_TIME, MAX_SLEEP_TIME)  # 使用前面设置的间隔时间
+        print(f"{get_current_time()} - 等待 {sleep_time} 秒...")
+        time.sleep(sleep_time)
+
+if __name__ == "__main__":
+    main()
