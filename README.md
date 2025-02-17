@@ -2,7 +2,7 @@ OKX 批量提现脚本
 
 项目简介
 
-本项目是一个 Python 脚本，支持从 Excel 文件读取提现地址和金额，并通过 OKX API 实现批量提现 ETH 到指定链（默认 ARB）。
+本项目是一个 Python 脚本，支持从 Excel 文件读取提现地址和金额，并通过 OKX API 实现批量提现 （默认ETH 到 base 链）。
 
 特性
 
