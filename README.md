@@ -46,13 +46,11 @@ pip install pandas requests openpyxl
    API_PASSPHRASE = 'API密码'
    ```
 
-3. **准备 Excel 文件**  
+3. **准备 Excel 文件并填写参数**  
    - **Address**：提现地址  
-   - **Amount**：提现金额  
-   在脚本中，将文件路径修改为实际路径，例如：
-   ```python
-   file_path = r"C:\Users\你的用户名\Desktop\OKX\withdraw_list.xlsx"
-   ```
+   - **Amount**：提现金额
+   -  ![1739786522946](https://github.com/user-attachments/assets/8ea8e1f4-cb57-45c9-9956-c9132481e75f)
+
 
 4. **运行脚本**  
    进入脚本所在目录，执行：
