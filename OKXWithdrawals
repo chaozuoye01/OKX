@@ -86,8 +86,8 @@ def read_excel(file_path):
 
 # 主函数
 def main():
-    file_path = r"C:\Users\24894\Desktop\OKX\withdraw_list.xlsx"  # Excel文件路径
-    data = read_excel(file_path)
+    file_name = "withdraw_list.xlsx"  # Excel 文件名
+    data = read_excel(file_name)
 
     for index, row in data.iterrows():
         address = row['Address']
